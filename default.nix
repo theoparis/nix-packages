@@ -1,5 +1,6 @@
 let
-	llvm = import ./llvm.nix;
+	pkgs = import <nixpkgs> {};
+	llvm = pkgs.callPackage ./llvm.nix {};
 in {
 	inherit llvm;
 }

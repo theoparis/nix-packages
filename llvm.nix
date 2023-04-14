@@ -1,12 +1,12 @@
 {
 	nixpkgs ? <nixpkgs>,
 	pkgs ? import nixpkgs { },
-	llvmVersion ? "main",
+	llvmVersion ? "d30b4e515a0cf509e56b88ddd7ddb87b9e601508",
 }:
 let
 	llvmSrc = builtins.fetchTarball "https://github.com/llvm/llvm-project/archive/${llvmVersion}.tar.gz";
 
-	llvmFull = pkgs.libcxxStdenv.mkDerivation rec {
+	llvmFull = pkgs.stdenv.mkDerivation rec {
 		name = "llvm-full";
 		src = llvmSrc;
 
