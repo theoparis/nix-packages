@@ -1,6 +1,5 @@
 {
-	nixpkgs ? <nixpkgs>,
-	pkgs ? import nixpkgs { },
+	pkgs,
 	llvmVersion ? "d30b4e515a0cf509e56b88ddd7ddb87b9e601508",
 }:
 let
@@ -59,4 +58,23 @@ let
 		cmake --install build
 		'';
 	};
-in llvmFull
+
+	clang = pkgs.wrapCC (pkgs.stdenv.mkDerivation {
+		name = "clang-full";
+		dontUnpack = true;
+		installPhase = ''
+			mkdir -p $out/bin
+			for bin in ${toString (builtins.attrNames (builtins.readDir "${llvmFull}/bin"))}; do
+				cat > $out/bin/$bin <<EOF
+#!${pkgs.stdenv.shell}
+exec "${llvmFull}/bin/$bin" "\$@"
+EOF
+				chmod +x $out/bin/$bin
+		done
+		'';
+		passthru.isClang = true;
+	});
+in {
+ 	llvm = llvmFull;
+	clang = clang;
+}
