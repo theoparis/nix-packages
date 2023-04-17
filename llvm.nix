@@ -1,9 +1,11 @@
 {
 	pkgs,
-	llvmVersion ? "d30b4e515a0cf509e56b88ddd7ddb87b9e601508",
+	llvmVersion ? "73925b3a0c1dabc094ae38a712df34e95dd08446",
 }:
 let
-	llvmSrc = builtins.fetchTarball "https://github.com/llvm/llvm-project/archive/${llvmVersion}.tar.gz";
+	llvmSrc = builtins.fetchTarball {
+		url = "https://github.com/llvm/llvm-project/archive/${llvmVersion}.tar.gz";
+	};
 
 	llvmFull = pkgs.stdenv.mkDerivation rec {
 		name = "llvm-full";
@@ -22,7 +24,8 @@ let
 		configurePhase = ''
 		cmake -S llvm -B build \
 			-DCMAKE_BUILD_TYPE=MinSizeRel \
-			-DLLVM_ENABLE_PROJECTS="mlir;llvm;clang;lld;clang-tools-extra;libclc;lldb;openmp;bolt" \
+			-DLLVM_ENABLE_PROJECTS="mlir;llvm;clang;lld;clang-tools-extra;libclc;lldb;bolt" \
+			-DLLVM_ENABLE_PIC=ON \
 			-DLLVM_ENABLE_ASSERTIONS=ON \
 			-DMLIR_ENABLE_VULKAN_RUNNER=ON \
 			-DMLIR_ENABLE_SPIRV_CPU_RUNNER=ON \
@@ -49,6 +52,10 @@ let
 			-DLIBCXXABI_ENABLE_EXCEPTIONS=ON \
 			-DLIBCXXABI_ENABLE_THREADS=ON \
 			-DLIBCXXABI_ENABLE_RTTI=ON \
+			-DCMAKE_C_COMPILER=${pkgs.clang}/bin/clang \
+			-DCMAKE_CXX_COMPILER=${pkgs.clang}/bin/clang++ \
+			-DCMAKE_ASM_COMPILER=${pkgs.clang}/bin/clang \
+			-DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=${pkgs.lld}/bin/ld.lld" \
 			-DCMAKE_INSTALL_PREFIX=${placeholder "out"}
 		'';
 		buildPhase = ''
