@@ -1,15 +1,11 @@
 {
 	pkgs,
-	llvmVersion ? "73925b3a0c1dabc094ae38a712df34e95dd08446",
+	llvmProject,
 }:
 let
-	llvmSrc = builtins.fetchTarball {
-		url = "https://github.com/llvm/llvm-project/archive/${llvmVersion}.tar.gz";
-	};
-
 	llvmFull = pkgs.stdenv.mkDerivation rec {
 		name = "llvm-full";
-		src = llvmSrc;
+		src = llvmProject;
 
 		nativeBuildInputs = [
 			pkgs.cmakeMinimal
